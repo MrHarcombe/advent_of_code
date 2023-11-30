@@ -41,5 +41,5 @@ with open("input8.txt") as data:
     # print(license)
     
 root = parse_node(license)
-# print("Part 1:", root.traverse_sum())
+print("Part 1:", root.traverse_sum())
 print("Part 2:", root.value())
