@@ -4,9 +4,9 @@ Being my Python 3 ramblings and learnings in the world of festive problem solvin
 
 - 2015 50 Stars
 - 2016 50 Stars
-- 2017
+- 2017 50 Stars
 - 2018
 - 2019
 - 2020
-- 2021
+- 2021 50 Stars
 - 2022 50 Stars
