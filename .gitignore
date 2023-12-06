@@ -134,3 +134,6 @@ replit.nix
 
 # VS Code
 launch.json
+
+# advent of code
+input*.txt
