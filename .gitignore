@@ -131,9 +131,10 @@ dmypy.json
 # Online environments
 .replit
 replit.nix
+pyproject.toml
 
 # VS Code
 launch.json
 
 # advent of code
-input*.txt
+*.txt
