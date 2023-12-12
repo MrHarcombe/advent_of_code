@@ -132,9 +132,11 @@ dmypy.json
 .replit
 replit.nix
 pyproject.toml
+poetry.lock
 
 # VS Code
 launch.json
+.breakpoints
 
 # advent of code
 *.txt
