@@ -1,3 +1,4 @@
+from functools import cache
 from io import StringIO
 from time import time
 
@@ -16,6 +17,7 @@ test = """???.### 1,1,3
 ?###???????? 3,2,1"""
 
 # test = """.# 1"""
+# test = """????.######..#####. 1,6,5"""
 
 def generate_parts(counts):
     return ["#" * c  + ("." if i < len(counts)-1 else "") for i, c in enumerate(counts)]
@@ -27,12 +29,15 @@ def match_possible(pattern, possible):
         return False
     return True
 
+@cache
 def get_neighbours(dot_splits):
+    neighbours = []
     for i in range(len(dot_splits)):
         if dot_splits[i] > 0:
             for j in range(len(dot_splits)):
                 if i != j:
-                    yield tuple(dot_splits[n] - 1 if n == i else dot_splits[n] + 1 if n == j else dot_splits[n] for n in range(len(dot_splits)))
+                    neighbours.append(tuple(dot_splits[n] - 1 if n == i else dot_splits[n] + 1 if n == j else dot_splits[n] for n in range(len(dot_splits))))
+    return neighbours
 
 def resolve_pattern(dot_parts, parts):
     return "".join([d+p for d,p in zip(["." * n for n in dot_parts], parts + [""])])
@@ -57,7 +62,8 @@ def generate_possibles(pattern, parts):
                     # print()
                     yield possible
             for next_possible in get_neighbours(possible_dots):
-                queue.append(next_possible)
+                if next_possible not in visited:
+                    queue.append(next_possible)
 
 readings = []
 with StringIO(test) as data:
@@ -83,14 +89,6 @@ for pattern, counts in readings:
     
     p2_parts = generate_parts(p2_counts)
     total += sum(1 for possible in generate_possibles(p2_pattern, p2_parts) if match_possible(p2_pattern, possible))
-
-##    print(p2_counts, "->", p2_parts)
-##    count = 0
-##    for possible in generate_possibles(p2_pattern, p2_parts):
-##        print(possible)
-##        count += 1
-##    print(p2_pattern, count)
-##    total += count
-
+ 
 print("Part 2:", total)
 print("Elapsed:", time() - start)
