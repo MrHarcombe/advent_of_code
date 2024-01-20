@@ -46,49 +46,39 @@ def get_neighbours2(graph, point):
         pr, pc = point
         if 0 <= pr + dr <= graph["max_row"] and 0 <= pc + dc <= graph["max_col"]:
             new_point = (pr + dr, pc + dc)
-            new_path = graph.get(new_point, ".")
-            if new_path != "#":
+            if graph.get(new_point, ".") != "#":
                 yield new_point
 
 class Day23WMG(WeightedMatrixGraph):
-    def get_connections(self, node):
-        return super().get_connections(node)
-
     def depth_first(self, start_node, end_node=None):
         if start_node in self.matrix[0]:
-            queue = [(start_node, [start_node])]
+            queue = [(start_node, {start_node}, 0)]
 
             while len(queue) > 0:
-                current, visited = queue.pop()
+                current, visited, distance = queue.pop()
 
                 if current == end_node:
-                    yield visited
-                    
+                    yield distance
+
                 else:
                     for node, weight in self.get_connections(current):
                         if node not in visited:
-                            queue.append((node, list(visited + [node])))
-        
-        else:
-            yield None
+                            queue.append((node, visited | {node}, distance + weight))
 
     def breadth_first(self, start_node, end_node=None):
         if start_node in self.matrix[0]:
-            queue = [(start_node, [start_node])]
+            queue = [(start_node, {start_node}, 0)]
 
             while len(queue) > 0:
-                current, visited = queue.pop(0)
+                current, visited, distance = queue.pop(0)
 
                 if current == end_node:
-                    yield visited
-                    
+                    yield distance
+
                 else:
                     for node, weight in self.get_connections(current):
                         if node not in visited:
-                            queue.append((node, list(visited + [node])))
-        
-        else:
-            yield None
+                            queue.append((node, visited | {node}, distance + weight))
 
 paths = {}
 
@@ -105,6 +95,7 @@ paths["max_col"] = col
 start = next((0,col) for col in range(paths["max_col"]+1) if (0,col) not in paths)
 goal = next((row,col) for col in range(paths["max_col"]+1) if (row,col) not in paths)
 
+begin = time()
 routes = []
 queue = [(start, set())]
 while len(queue) > 0:
@@ -117,6 +108,7 @@ while len(queue) > 0:
                 queue.append((neighbour, visited | {neighbour}))
 
 print("Part 1:", len(max(routes, key=lambda r: len(r))))
+print("Elapsed:", time() - begin)
 
 squashed = Day23WMG(True)
 routes = []
@@ -124,7 +116,6 @@ visited = []
 queue = [start]
 squashed.add_node(start)
 
-begin = time()
 while len(queue) > 0:
     # assume this is a junction
     current = queue.pop(0)
@@ -153,28 +144,8 @@ while len(queue) > 0:
         if squash_neighbour not in queue and squash_neighbour not in visited:
             queue.append(squash_neighbour)
 
-    # else:
-    #     visited.append(current)
-    #     for neighbour in neighbours:
-    #         if neighbour not in queue and neighbour not in visited:
-    #             queue.append(neighbour)
-
 print("Squashed:", time() - begin)
 
-def path_cost(path):
-    path_cost = 0
-    for i in range(len(path)-1):
-        if not squashed.is_connected(path[i], path[i+1]):
-            print("uh-oh:", path[i], path[i+1])
-        path_cost += squashed.is_connected(path[i], path[i+1])
-    return path_cost
-
-# paths = [path for path in squashed.breadth_first(start, goal)]
-longest = 0
-for path in squashed.depth_first(start, goal):
-    cost = path_cost(path)
-    if cost > longest:
-        # print("New longest:", cost)
-        longest = cost
-print("Part 2:", longest)
+# print("Part 2:", max([path for path in squashed.breadth_first(start, goal)]))
+print("Part 2:", max([path for path in squashed.depth_first(start, goal)]))
 print("Elapsed:", time() - begin)
