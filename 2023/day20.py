@@ -97,15 +97,8 @@ class conjunction(module):
             self.low_pulse_count += 1
         else:
             self.high_pulse_count += 1
-        
-        # print(self.name, [str(i) for i in self.inputs], self.previous)
-        super()._output(LOW if all(self.previous[n.name] == HIGH for n in self.inputs) else HIGH)
-        # output = LOW
-        # for n in self.inputs:
-        #     if self.previous[n.name] == LOW:
-        #         output = HIGH
-        # super()._output(output)
 
+        super()._output(LOW if all(self.previous[n.name] == HIGH for n in self.inputs) else HIGH)
 
     def reset(self):
         self.previous = defaultdict(lambda: LOW)
