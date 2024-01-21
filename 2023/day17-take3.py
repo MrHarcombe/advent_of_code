@@ -53,7 +53,7 @@ def get_neighbours_and_cost_1(graph, point, previous):
                 break
 
             cost += graph[new_point]
-            yield new_point, d, step, cost
+            yield new_point, d, cost
 
 def get_neighbours_and_cost_2(graph, point, previous):
     for d, (dr, dc) in enumerate(((-1,0), (0,1), (1,0), (0,-1))):
@@ -70,14 +70,14 @@ def get_neighbours_and_cost_2(graph, point, previous):
 
             cost += graph[new_point]
             if step > 3:
-                yield new_point, d, step, cost
+                yield new_point, d, cost
 
 def manhattan_guess(node, goal):
     # return the cityblock / manhattan distance
     return sum(abs(p1-p2) for p1, p2 in zip(node, goal))
 
 def a_star(graph, start, goal, f_neighbour, f_heuristic):
-    start_details = (start, None, 0)
+    start_details = (start, None)
     
     # The set of discovered nodes that may need to be (re-)expanded.
     # Initially, only the start node is known.
@@ -104,17 +104,15 @@ def a_star(graph, start, goal, f_neighbour, f_heuristic):
         # This operation can occur in O(1) time if openSet is a min-heap or a priority queue
         # current := the node in openSet having the lowest fScore[] value
         estimate, current_details = heappop(open_set)
-        node, previous_direction, step_count = current_details
+        node, previous_direction = current_details
 
-        # normally, we'd stop in an A* here, but actually we need to keep moving, as there may be
-        # more than one "goal" node depending on how we arrived there
-        # ...just don't go past the goal
-        if node != goal:
-            for neighbour, direction, steps, cost in f_neighbour(graph, node, previous_direction):
-                sub_node = (neighbour, direction, steps)
-
-                # for the purposes of cleaning out any previous entry from the heapq
-                worse_f_score = f_score[sub_node]
+        # Don't go past the goal
+        if node == goal:
+            break
+        
+        else:
+            for neighbour, direction, cost in f_neighbour(graph, node, previous_direction):
+                sub_node = (neighbour, direction)
 
                 # d(current, neighbour) is the weight of the edge from current to neighbour
                 # tentative_gScore is the distance from start to the neighbour through current
@@ -126,12 +124,7 @@ def a_star(graph, start, goal, f_neighbour, f_heuristic):
                     friend_f_score = tentative_g_score + f_heuristic(neighbour, goal)
                     f_score[sub_node] = friend_f_score
 
-                    if (worse_f_score, sub_node) in open_set:
-                        open_set.remove((worse_f_score, sub_node))
-                        heapify(open_set)
-
-                    if (friend_f_score, sub_node) not in open_set:
-                        heappush(open_set, (friend_f_score, sub_node))
+                    heappush(open_set, (friend_f_score, sub_node))
 
     paths = []
     possibles = [k for k in came_from if k[0] == end]
@@ -144,29 +137,28 @@ def a_star(graph, start, goal, f_neighbour, f_heuristic):
     
     return paths, came_from
 
-def dijkstra(graph, start, end):
+def dijkstra(graph, start, end, neighbour_f):
     queue = []
     data = defaultdict(lambda: [float("inf"), None])
     data[(start, None, 0)] = [0, None]
-    
-    heappush(queue, (0, (start, None, 0)))
+
+    heappush(queue, (0, (start, None)))
 
     while len(queue) > 0:
         previous_cost, node_details = heappop(queue)
-        node, previous_direction, previous_steps = node_details
+        node, previous_direction = node_details
 
-        if node != end:
-            for neighbour, direction, steps, cost in get_neighbours_and_cost(graph, node, previous_direction):
-                sub_node = (neighbour, direction, steps)
+        if node == end:
+            break
 
-                old_cost = data[sub_node][0]
+        else:
+            for neighbour, direction, cost in neighbour_f(graph, node, previous_direction):
+                sub_node = (neighbour, direction)
+
                 if previous_cost + cost < data[sub_node][0]:
                     data[sub_node][0] = previous_cost + cost
                     data[sub_node][1] = node_details
 
-                    if (old_cost, sub_node) in queue:
-                        queue.remove((old_cost, sub_node))
-                        heapify(queue)
                     heappush(queue, (data[sub_node][0], sub_node))
 
     if end == None:
@@ -196,15 +188,20 @@ city["max_col"] = col
 start=(0,0)
 end=(row,col)
 
-# paths, workings = dijkstra(city, start, end)
-# print("Part 1:", min(path[-1][-1] for path in paths))
+now = time()
+paths, workings = dijkstra(city, start, end, get_neighbours_and_cost_1)
+print("Part 1:", min(path[-1][-1] for path in paths))
+print("Elapsed:", time() - now)
+# now = time()
+# paths, _ = a_star(city, start, end, get_neighbours_and_cost_1, manhattan_guess)
+# print("Part 1:", min(path[-1][1][-1] for path in paths))
+# print("Elapsed:", time() - now)
 
 now = time()
-paths, _ = a_star(city, start, end, get_neighbours_and_cost_1, manhattan_guess)
-print("Part 1:", min(path[-1][1][-1] for path in paths))
+paths, workings = dijkstra(city, start, end, get_neighbours_and_cost_2)
+print("Part 1:", min(path[-1][-1] for path in paths))
 print("Elapsed:", time() - now)
-
-now = time()
-paths, _ = a_star(city, start, end, get_neighbours_and_cost_2, manhattan_guess)
-print("Part 2:", min(path[-1][1][-1] for path in paths))
-print("Elapsed:", time() - now)
+# now = time()
+# paths, _ = a_star(city, start, end, get_neighbours_and_cost_2, manhattan_guess)
+# print("Part 2:", min(path[-1][1][-1] for path in paths))
+# print("Elapsed:", time() - now)
