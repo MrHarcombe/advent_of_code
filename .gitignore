@@ -140,3 +140,5 @@ launch.json
 
 # advent of code
 *.txt
+*.dot
+*.json
