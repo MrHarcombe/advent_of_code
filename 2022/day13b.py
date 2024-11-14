@@ -108,16 +108,19 @@ sorted_lines = sorted(lines, key=compare_func)
 print("sorted:", time.time() - now)
 
 # now compare with bubble sort :)
-now = time.time()
-sorted = False
-while not sorted:
-    sorted = True
-    for i in range(len(bubble_lines)-1):
-        if not compare_part(bubble_lines[i], bubble_lines[i+1]):
-            bubble_lines[i], bubble_lines[i+1] = bubble_lines[i+1], bubble_lines[i]
-            sorted = False
-print("bubble:", time.time() - now)
+# now = time.time()
+# sorted = False
+# while not sorted:
+#     sorted = True
+#     for i in range(len(bubble_lines)-1):
+#         if not compare_part(bubble_lines[i], bubble_lines[i+1]):
+#             bubble_lines[i], bubble_lines[i+1] = bubble_lines[i+1], bubble_lines[i]
+#             sorted = False
+# print("bubble:", time.time() - now)
 
+lines = []
 for i, line in enumerate(sorted_lines):
     if line == [[2]] or line == [[6]]:
-        print(i+1)
+        lines.append(i+1)
+        
+print(lines[0] * lines[1])
