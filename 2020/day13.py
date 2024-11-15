@@ -1,6 +1,6 @@
 from functools import reduce
 from io import StringIO
-from math import ceil, log
+from math import ceil, log, prod
 from operator import add
 
 test = """939
@@ -65,22 +65,19 @@ def gcd_extended(a, b):
     if a == 0:
         return b, 0, 1
     gcd, x1, y1 = gcd_extended(b % a, a)
-    x = y1 - (b // a) * x1
-    y = x1
+    x, y = y1 - (b // a) * x1, x1
     return gcd, x, y
 
 def find_minimum_x(num, rem):
-    prod = 1
-    for n in num:
-        prod *= n
+    prod_num = prod(num)
 
     result = 0
     for i in range(len(num)):
-        prod_i = prod // num[i]
+        prod_i = prod_num // num[i]
         _, inv_i, _ = gcd_extended(prod_i, num[i])
         result += rem[i] * prod_i * inv_i
 
-    return result % prod
+    return result % prod_num
 
 # with StringIO(test) as data:
 with open("input13.txt") as data:
@@ -102,22 +99,6 @@ with open("input13.txt") as data:
 #             best_bus = bus
 
 # print("Part 1:", (best_next - wait) * best_bus)
-
-# current_factor = buses[0]
-# for inc, bus in enumerate(buses):
-#     if inc == 0:
-#         continue
-#     if bus == -1:
-#         continue
-
-#     multiple = 1
-#     while ((current_factor + inc) * multiple) % bus != 0:
-#         multiple += 1
-
-#     print(current_factor, multiple, inc)
-#     current_factor *= (multiple - inc)
-
-# print(current_factor)
 
 bus_numbers = []
 bus_offsets = []
