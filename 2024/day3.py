@@ -18,9 +18,12 @@ with open("input3.txt") as input_data:
             # print(m, m.group(0))
             total1 += prod(map(int, m.groups()))
 
-            dos = [dm.start() for dm in do_pattern.finditer(line[:m.start()])]
-            donts = [-dm.start() for dm in dont_pattern.finditer(line[:m.start()])]
-            dos_and_donts = sorted(dos + donts, key=lambda item: abs(item))
+            dos_and_donts = sorted(
+                [dm.start() for dm in do_pattern.finditer(line[: m.start()])]
+                + [-dm.start() for dm in dont_pattern.finditer(line[: m.start()])],
+                key=lambda item: abs(item),
+            )
+
             if len(dos_and_donts) > 0:
                 enable = dos_and_donts[-1] > 0
 
