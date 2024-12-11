@@ -16,7 +16,7 @@ def build_combinations(k, n):
               newl.append(i)
               if le == k-1 and news == n:
                   yield tuple(newl)
-              elif le < k-1 and news < n:
+              elif le <= k-2 and news < n:
                   to_process.append(newl)
 
 def manhattan_distance(p1, p2):
