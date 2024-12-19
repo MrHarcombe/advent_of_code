@@ -1,6 +1,17 @@
 from collections import defaultdict
 from io import StringIO
 
+directions = {
+    0: (0, -1),
+    1: (1, -1),
+    2: (1, 0),
+    3: (1, 1),
+    4: (0, 1),
+    5: (-1, 1),
+    6: (-1, 0),
+    7: (-1, -1),
+}
+
 
 def get_neighbours(point):
     x, y = point
@@ -8,29 +19,32 @@ def get_neighbours(point):
         yield x + dx, y + dy
 
 
-def find_matching_neighbours(plot, crop, point):
-    """Finds all matching neighbours, indexed from 0 (top), 1 (top-right), 2 (right), etc. Similarly returns all non-matching neighbours.
+# def find_matching_neighbours(plot, crop, point):
+#     """Finds all matching neighbours, indexed from 0 (top), 1 (top-right), 2 (right), etc. Similarly returns all non-matching neighbours.
 
-    Args:
-        plot (set): collection of crops to check
-        crop (str): type of crop to match
-        point (tuple(int,int)): coordinate of crop to find for
+#     Args:
+#         plot (set): collection of crops to check
+#         crop (str): type of crop to match
+#         point (tuple(int,int)): coordinate of crop to find for
 
-    Yields:
-        set: collection of indexes indicating which neighbours are of the same type
-        set: collection of indexes indicating which neighbours are of another type
-    """
-    same_crop = set()
-    other_crop = set()
-    x, y = point
-    for ix, dx, dy in enumerate((0, -1), (1, 0), (0, 1), (-1, 0)):
-        neighbour = plot[(x + dx, y + dy)]
-        if neighbour == crop:
-            same_crop.add(ix)
-        elif neighbour != ".":
-            other_crop.add(ix)
+#     Yields:
+#         set: collection of indexes indicating which neighbours are of the same type
+#         set: collection of indexes indicating which neighbours are of another type
+#     """
+#     same_crop = set()
+#     other_crop = set()
+#     x, y = point
 
-    return same_crop, other_crop
+#     # look at the diagonals
+#     for direction in (1,3,5,7):
+#     for ix, dx, dy in enumerate((0, -1), (1, 0), (0, 1), (-1, 0)):
+#         neighbour = plot[(x + dx, y + dy)]
+#         if neighbour == crop:
+#             same_crop.add(ix)
+#         elif neighbour != ".":
+#             other_crop.add(ix)
+
+#     return same_crop, other_crop
 
 
 def find_subplot(plot, crop, point):
@@ -60,21 +74,27 @@ def find_perimeter(plot, crop, subplot):
     return perimeter
 
 
-def count_corners(plot, subplot, crop, point):
+def count_corners(subplot, point):
     corners = 0
     for point in subplot:
-        neighbours = find_matching_neighbours(plot, crop, point)
-        if len(neighbours) == 0:
-            corners = 4
-        elif len(neighbours) == 1:
-            assert neighbours[0] % 2 == 0
-            corners = 2
-        elif len(neighbours) == 2:
-            # adjacent or parallel?
-            pass
-        else:
-            # 3 or 4 matching neighbours is a surrounded crop, so no corners
-            pass
+        x, y = point
+        for diagonal in (1, 3, 5, 7):
+            dix, diy = directions[diagonal]
+            adjacent = tuple(
+                (x + directions[d][0], y + directions[d][1])
+                for d in ((diagonal - 1) % 8, (diagonal + 1) % 8)
+            )
+            if (
+                (x + dix, y + diy) not in subplot
+                and all([a in subplot for a in adjacent])
+                or all([a not in subplot for a in adjacent])
+            ):
+                corners += 1
+            elif (x + dix, y + diy) in subplot and all(
+                [a not in subplot for a in adjacent]
+            ):
+                corners += 1
+
     return corners
 
 
@@ -100,10 +120,21 @@ MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE"""
 
+test = """AAAAAGGRRAA
+AAAAAGGGRRR
+AAAAAGGARAA
+AAAAAGGAAAA
+AAAGGGAAAAA
+GAAGGGGAAAA
+GGGGGGGGAAA
+GGGGGGGGGAA
+GGGGGGGGAAA
+GGGGGGGGGGG"""
+
 plot = defaultdict(list)
 
-with StringIO(test) as input_data:
-    # with open("input12.txt") as input_data:
+# with StringIO(test) as input_data:
+with open("input12.txt") as input_data:
     for y, row in enumerate(input_data):
         for x, ch in enumerate(row.strip()):
             plot[ch].append((x, y))
@@ -121,9 +152,12 @@ for ch in plot:
             area = len(subplot)
             perimeter = find_perimeter(plot, ch, subplot)
             cost1 += area * perimeter
-            corners = count_corners(plot, ch, subplot)
+            corners = count_corners(subplot, point)
             cost2 += area * corners
             print(ch, area, perimeter, corners)
 
 print("Part 1:", cost1)
 print("Part 2:", cost2)
+
+# 845490 too low
+# 855082 too low
