@@ -15,6 +15,19 @@ def can_match(design, patterns):
     return False
 
 
+@cache
+def count_match(design, patterns):
+    if len(design) == 0:
+        return 1
+
+    count = 0
+    for pattern in patterns:
+        if design.startswith(pattern):
+            count += count_match(design[len(pattern) :], patterns)
+
+    return count
+
+
 test = """r, wr, b, g, bwu, rb, gb, br
 
 brwrr
@@ -36,16 +49,18 @@ with open("input19.txt") as input_data:
 
 # print(patterns, designs)
 
-count = 0
+count1 = 0
+count2 = 0
 for design in designs:
     if can_match(design, tuple(patterns)):
-        count += 1
-        if count % 100 == 0:
-            print("Count:", count)
-    else:
-        print("Nope:", design)
-        # can_match(design, patterns)
+        count1 += 1
 
-print("Part 1:", count)
+    count2 += count_match(design, tuple(patterns))
+    # print(design, count2)
+
+print("Part 1:", count1)
+print("Part 2:", count2)
 
 # 236 too low
+
+# 719 too low
