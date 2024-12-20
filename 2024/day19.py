@@ -1,25 +1,16 @@
+from functools import cache
 from io import StringIO
 
 
+@cache
 def can_match(design, patterns):
     if len(design) == 0:
         return True
 
-    pidx = 0
-    while pidx < len(patterns):
-        pattern = patterns[pidx]
+    for pattern in patterns:
         if design.startswith(pattern):
-            if can_match(design[len(pattern) :], list(patterns)):
+            if can_match(design[len(pattern) :], patterns):
                 return True
-            elif can_match(
-                design,
-                list(filter(lambda p: p[0] == pattern[0] and p != pattern, patterns)),
-            ):
-                return True
-
-        pidx += 1
-
-        print(design, pidx, pattern, len(patterns))
 
     return False
 
@@ -47,7 +38,7 @@ with open("input19.txt") as input_data:
 
 count = 0
 for design in designs:
-    if can_match(design, list(patterns)):
+    if can_match(design, tuple(patterns)):
         count += 1
         if count % 100 == 0:
             print("Count:", count)
