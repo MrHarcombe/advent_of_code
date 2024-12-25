@@ -141,5 +141,5 @@ launch.json
 # advent of code
 *.txt
 *.dot
-*.json*.dot
 *.json
+*.mermaid
