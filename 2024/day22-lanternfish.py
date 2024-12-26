@@ -1,3 +1,4 @@
+from collections import defaultdict
 from io import StringIO
 from math import floor
 
@@ -19,6 +20,7 @@ test = """1
 2
 3
 2024"""
+
 # test = """2021
 # 5017
 # 19751"""
@@ -41,7 +43,7 @@ with open("input22.txt") as input_data:
         secret = int(line.strip())
         run.append(secret % 10)
 
-        for i in range(2000):
+        for j in range(2000):
             secret = prune(mix(secret * 64, secret))
             secret = prune(mix(floor(secret / 32), secret))
             secret = prune(mix(secret * 2048, secret))
@@ -55,27 +57,20 @@ with open("input22.txt") as input_data:
 
 print("Part 1:", total)
 
-slices = set()
-slice_scores = {}
-for change in changes:
-    for i in range(len(change)):
-        slice = tuple(change[i : i + 4])
-        if len(slice) == 4 and slice not in slices:
-            slices.add(slice)
+slice_scores = defaultdict(lambda: [None] * len(runs))
+for i, change in enumerate(changes):
+    for j in range(len(change)):
+        slice = tuple(change[j : j + 4])
+        if len(slice) == 4 and slice_scores[slice][i] is None:
+            slice_scores[slice][i] = runs[i][j + 4]
 
-            bananas = []
-            for j, change in enumerate(changes):
-                for k in range(len(change)):
-                    if slice == tuple(change[k : k + 4]):
-                        bananas.append(runs[j][k + 4])
-                        break
-            slice_scores[slice] = bananas
-
-print("Part 2:", sum(max(slice_scores.values(), key=lambda i: sum(i))))
-# print(
-#     [
-#         item
-#         for item in slice_score.items()
-#         if item[1] == max(slice_score.values(), key=lambda i: sum(i))
-#     ]
-# )
+print(
+    "Part 2:",
+    sum(
+        n
+        for n in max(
+            slice_scores.values(), key=lambda i: sum(n for n in i if n is not None)
+        )
+        if n is not None
+    ),
+)
