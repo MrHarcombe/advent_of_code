@@ -140,7 +140,7 @@ gates = {}
 z_gates = []
 
 # with StringIO(test) as input_data:
-with open("input24.txt") as input_data:
+with open("input24-fix.txt") as input_data:
     for line in input_data:
         if ":" in line:
             name, value = line.strip().split(": ")
@@ -190,6 +190,10 @@ print(
 )
 
 goal_total = get_int_value("x") + get_int_value("y")
+
+print("x=", get_int_value("x"))
+print("y=", get_int_value("y"))
+print("so should=", goal_total)
 
 carry_gate = ""
 for bit in range(len(z_gates) - 1):
@@ -285,10 +289,9 @@ for bit in range(len(z_gates) - 1):
         else:
             carry_gate = None
 
-# z07, shj
-# z23, pfn
-# z27, kcd
+changes = ["z07", "shj", "wkb", "tpk", "z23", "pfn", "z27", "kcd"]
 
+print("Part 2:", ",".join(sorted(changes)))
 
 # swappable_gates = list(filter(lambda name: name[0] not in ("x", "y"), gates.keys()))
 # for swap_these in combinations(swappable_gates, 8):
