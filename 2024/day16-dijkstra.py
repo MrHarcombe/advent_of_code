@@ -14,27 +14,27 @@ def get_neighbours(maze, point):
             yield new_point, direction
 
 
-def dijkstra(maze, start, end=None):
+def dijkstra(maze, start, start_dir=1, reverse=False):
     queue = []
     data = defaultdict(lambda: [float("inf"), None])
-    data[(start, 1)] = [0, None]
+    data[(start, start_dir)] = [0, None]
 
-    heappush(queue, (0, start, 1))
+    heappush(queue, (0, start, start_dir))
 
     while len(queue) > 0:
         _, node, last_direction = heappop(queue)
 
-        if node == end:
-            break
-
         for neighbour, direction in get_neighbours(maze, node):
+            new_direction = direction
+            if reverse:
+                new_direction = (direction + 2) % 2
             # calculate cost
-            cost = 1 if direction == last_direction else 1001
+            cost = 1 if new_direction == last_direction else 1001
             alt = data[(node, last_direction)][0] + cost
-            if alt < data[(neighbour, direction)][0]:
-                data[(neighbour, direction)][0] = alt
-                data[(neighbour, direction)][1] = (node, last_direction)
-                heappush(queue, (alt, neighbour, direction))
+            if alt < data[(neighbour, new_direction)][0]:
+                data[(neighbour, new_direction)][0] = alt
+                data[(neighbour, new_direction)][1] = (node, last_direction)
+                heappush(queue, (alt, neighbour, new_direction))
 
     return data
 
@@ -64,12 +64,12 @@ def display_path(maze_width, maze_height, maze, start, end, path_data):
         for x in range(maze_width + 1):
             if (x, y) == end:
                 row.append("E")
-            if (x, y) == start:
+            elif (x, y) == start:
                 row.append("S")
             elif (x, y) in path:
                 row.append("O")
             elif (x, y) in maze:
-                row.append("#")
+                row.append(maze[(x, y)])
             else:
                 row.append(".")
 
@@ -88,12 +88,29 @@ def display_seats(maze_width, maze_height, maze, start, end, seats):
             elif (x, y) in seats:
                 row.append("O")
             elif (x, y) in maze:
-                row.append("#")
+                row.append(maze[(x, y)])
             else:
                 row.append(".")
 
         print("".join(row))
     print()
+
+
+test = """###############
+#.......#....E#
+#.#.###.#.###.#
+#.....#.#...#.#
+#.###.#####.#.#
+#.#.#.......#.#
+#.#.#####.###.#
+#...........#.#
+###.#.#####.#.#
+#...#.....#.#.#
+#.#.#.###.#.#.#
+#.....#...#.#.#
+#.###.#.#.#.#.#
+#S..#.....#...#
+###############"""
 
 
 test = """#################
@@ -132,121 +149,72 @@ with open("input16.txt") as input_data:
 MAX_Y = y
 MAX_X = x
 
+# display_seats(MAX_X, MAX_Y, maze, start, end, set())
+
 data = dijkstra(maze, start)
 min_possible = min(
     [(d, data[(end, d)]) for d in directions], key=lambda item: item[1][0]
 )
-print(min_possible)
+# print(min_possible)
 print("Part 1:", min_possible[1][0])
 
+
+def build_path(dijkstra_data, src, dest):
+    path = [src]
+    current = dest
+    while current[0] != src[0]:
+
+        path.insert(1, current)
+        current = dijkstra_data[current][1]
+    return path
+
+
 # now, for the path that is the minimum, retrace it and at each place on the path that has an alternative
-# try taking that path with Dijkstra and checking the cost from there to the endpoint...
+# try checking the minimum cost *from the endpoint* back to there...
 
-path = [(start, 2)]
-current = (end, min_possible[0])
-while current[0] != start:
-    path.insert(1, current)
-    current = data[current][1]
+###
+# first, build the (well, *a*) shortest path
+#
+path = build_path(data, (start, 2), (end, min_possible[0]))
+# display_seats(MAX_X, MAX_Y, maze, start, end, {step for step, _ in path})
 
+###
+# then, engineer the reverse paths
+#
+reverse_data = dijkstra(maze, end, min_possible[0], True)
+
+###
+# now, for each step along the path, check for a turn not taken and look at the cheapest cost in
+# the reverse paths to that point to scope out an alternative route
+#
 seats = {step for step, _ in path}
 for step in range(1, len(path) - 1):
     current = path[step]
     next = path[step + 1]
-    cost_to_here = data[step][0]
+    cost_to_here = data[current][0]
     x, y = path[step][0]
     for d in directions:
         dx, dy = directions[d]
         possible_next = (x + dx, y + dy)
-        if maze[possible_next] != "#" and d != next:
-            alt_data = dijkstra(maze, possible_next, end)
+        if maze[possible_next] != "#" and d != next[1] and d != ((next[1] + 2) % 4):
+            lowest_alternative = min(
+                [(pnd, reverse_data[(possible_next, pnd)]) for pnd in directions],
+                key=lambda item: item[1][0],
+            )
+            alt_dir, (alt_cost, _) = lowest_alternative
+            if (alt_cost + cost_to_here) in (
+                min_possible[1][0] - 1,
+                min_possible[1][0] - 1001,
+            ):
+                alt_path = build_path(
+                    reverse_data, (end, min_possible[0]), (possible_next, alt_dir)
+                )
+                seats |= {step for step, _ in alt_path}
 
-# display_path(MAX_X, MAX_Y, maze, start, min_possibles[1], data)
-
-# all_matching = []
-
-# queue = [([(start, 2)], set())]
-# while len(queue) > 0:
-#     current_path, visited = queue.pop(0)
-#     current, cur_dir = current_path[-1]
-
-#     path_cost = calculate_path_cost(list(current_path))
-#     if path_cost > min_possibles[0]:
-#         print("Discarding path:", path_cost)
-#         continue
-
-#     if current == end:
-#         print("Found one")
-#         all_matching.append(current_path)
-
-#     else:
-#         for neighbour, direction in get_neighbours(maze, current):
-#             # if (neighbour, direction) not in current_path:
-#             if neighbour not in visited:
-#                 new_path = list(current_path)
-#                 new_path.append((neighbour, direction))
-#                 queue.append((new_path, visited | {neighbour}))
-
-# seats = set()
-# for path in all_matching:
-#     for step, _ in path:
-#         seats.add(step)
-
-# print("Part 2:", len(seats))
-
-# alternatives = []
-
-# stack = [[(start, 2, 0)]]
-# visited = set()
-
-# while len(stack) > 0:
-#     current_path = stack.pop()
-#     current, prev_dir, cost = current_path[-1]
-#     if current == end and cost <= min_possibles:
-#         print("Found:", current_path)
-#         alternatives.append(current_path)
-
-#     elif cost > min_possibles:
-#         # print("Ignoring expensive path:", cost)
-#         pass
-
-#     else:
-#         for neighbour, direction in get_neighbours(maze, current):
-#             step_cost = 1 if direction == prev_dir else 1001
-#             if (
-#                 neighbour,
-#                 direction,
-#             ) not in visited:
-#                 new_path = list(current_path)
-#                 new_path.append([neighbour, direction, cost + step_cost])
-#                 stack.append(new_path)
-
-# print(len(alternatives))
-
-# print(data)
-# display_path(MAX_X, MAX_Y, maze, start, end, data)
-
-# part 2 requires backtracking along the path, finding all possibles at each step that have the smallest cost
-# and following those back to the start
-
-# seats = set()
-# seats.add(end)
-# seats.add(start)
-
-# possibles = [data[(end, d)] for d in directions]
-# cost, last = min(possibles, key=lambda item: item[0])
-# queue = [last]
-# while len(queue) > 0:
-#     current = queue.pop(0)
-#     seats.add(current)
-#     possibles = [data[(current, d)] for d in directions]
-#     value = min(possibles, key=lambda item: item[0])[0]
-#     lowest = filter(lambda item: item[0] == value, possibles)
-#     for _, pos in lowest:
-#         if pos != start:
-#             queue.append(pos)
-
-# print("Part 2:", len(seats))
-# display_seats(MAX_X, MAX_Y, maze, start, end, seats)
+#   display_seats(MAX_X, MAX_Y, maze, start, end, seats)
+print("Part 2:", len(seats))
 
 # 138424 too high
 # 111488 too high
+
+# 481 too low
