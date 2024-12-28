@@ -20,7 +20,8 @@ def get_neighbours(point):
 
 
 # def find_matching_neighbours(plot, crop, point):
-#     """Finds all matching neighbours, indexed from 0 (top), 1 (top-right), 2 (right), etc. Similarly returns all non-matching neighbours.
+#     """Finds all matching neighbours, indexed from 0 (top), 1 (top-right), 2 (right), etc. Similarly returns all
+#        non-matching neighbours.
 
 #     Args:
 #         plot (set): collection of crops to check
@@ -74,28 +75,31 @@ def find_perimeter(plot, crop, subplot):
     return perimeter
 
 
-def count_corners(subplot, point):
-    corners = 0
+def count_corners(subplot):
+    total_corners = 0
     for point in subplot:
-        x, y = point
+        corners = 0
         for diagonal in (1, 3, 5, 7):
+            x, y = point
             dix, diy = directions[diagonal]
             adjacent = tuple(
                 (x + directions[d][0], y + directions[d][1])
                 for d in ((diagonal - 1) % 8, (diagonal + 1) % 8)
             )
-            if (
-                (x + dix, y + diy) not in subplot
-                and all([a in subplot for a in adjacent])
-                or all([a not in subplot for a in adjacent])
-            ):
+            all_in = [a in subplot for a in adjacent]
+            all_not_in = [a not in subplot for a in adjacent]
+            if (x + dix, y + diy) not in subplot and (all(all_in) or all(all_not_in)):
                 corners += 1
-            elif (x + dix, y + diy) in subplot and all(
-                [a not in subplot for a in adjacent]
-            ):
+            elif (x + dix, y + diy) in subplot and all(all_not_in):
                 corners += 1
 
-    return corners
+        # This is the case of an internal square currounded by 4 convex corners
+        # if corners == 4 and len(subplot) != 1:
+        #     print("4 corners on", point, "in subplot of size", len(subplot))
+
+        total_corners += corners
+
+    return total_corners
 
 
 test = """AAAA
@@ -131,6 +135,37 @@ GGGGGGGGGAA
 GGGGGGGGAAA
 GGGGGGGGGGG"""
 
+test = """AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA"""
+
+test = """IINNNNIIIIIIIII
+INNNNNIIIEIIIII
+IIIIEEEEEEIIIII
+IIIIIEEEEEIIIII
+IIIIEEEEEEEEEII
+IIEEEEEEEEEEEII
+IIENEEEEEEEEEII
+IEEEEEEEEEEEEEM
+IIELEEEEEEEEEEM
+UEEEEEEEEEEEEEM
+UUEEEEEEEELELLM
+UUUUEEEEEELLLLM
+UZEEEEEEEELLLLL
+UEEEEEEEEELLLLL
+JEEEEEEEELLLLLL
+ICCELEEEELLLLLL
+ICCCEEEEELLLLLL
+IIIEEEEELLLLLLL
+IIEEEEEEEELVLLL
+IIBEEEDDKELVVDL
+IIIDREDVDEVVVDL
+IIIDDDDDDDVVDDD"""
+
+
 plot = defaultdict(list)
 
 # with StringIO(test) as input_data:
@@ -142,6 +177,8 @@ with open("input12.txt") as input_data:
 cost1 = 0
 cost2 = 0
 
+total_area = 0
+
 for ch in plot:
     visited = set()
     for point in plot[ch]:
@@ -150,14 +187,15 @@ for ch in plot:
             assert len(visited & subplot) == 0
             visited |= subplot
             area = len(subplot)
+            total_area += area
             perimeter = find_perimeter(plot, ch, subplot)
             cost1 += area * perimeter
-            corners = count_corners(subplot, point)
+            corners = count_corners(subplot)
             cost2 += area * corners
             print(ch, area, perimeter, corners)
 
 print("Part 1:", cost1)
 print("Part 2:", cost2)
+print("Total area:", total_area)
 
 # 845490 too low
-# 855082 too low
