@@ -12,6 +12,7 @@ class HashableDict(dict):
     def __hash__(self):
         return hash(tuple(sorted(self.items())))
 
+    @cache
     def key_of_value(self, v):
         return next(ik for ik, iv in self.items() if iv == v)
 
@@ -90,9 +91,9 @@ def refine_path(grid, dijkstra_result, start, end):
 
 
 @cache
-def build_grid_path(input_path, grid):
-    output_path = ""
-    for start, end in pairwise("A" + input_path):
+def build_grid_step(input_step, grid):
+    output_step = ""
+    for start, end in pairwise(input_step):
         # print("From", start, "to", end)
         step_path = refine_path(
             grid,
@@ -105,7 +106,37 @@ def build_grid_path(input_path, grid):
             grid.key_of_value(end),
         )
         # print(path)
-        output_path += "".join(step_path) + "A"
+        output_step += "".join(step_path) + "A"
+
+    return output_step
+
+
+def build_steps(path):
+    steps = []
+    on_a = False
+    prev = 0
+    for i in range(len(path)):
+        if path[i] == "A":
+            on_a = True
+        elif path[i] != "A" and on_a:
+            on_a = False
+            steps.append("A" + path[prev:i])
+            prev = i
+    else:
+        steps.append("A" + path[prev:i+1])
+    
+    return steps
+
+
+def build_grid_path(input_path, grid):
+    output_path = ""
+    # print(input_path)
+    steps = build_steps(input_path)
+    # print(steps)
+    for step in steps:
+        step_path = build_grid_step(step, grid)
+        # print(step_path)
+        output_path += "".join(step_path)
 
     return output_path
 
@@ -140,28 +171,30 @@ test = """029A
 #     dijkstra(direct_grid, direct_grid.key_of_value("A"), direct_grid.key_of_value("8"))
 # )
 
-complexities = 0
+lines = []
 # with StringIO(test) as input_data:
 with open("input21.txt") as input_data:
-    for ln, line in enumerate(input_data):
-        line_path = build_grid_path(line.strip(), direct_grid)
+    for line in input_data:
+        lines.append(line.strip())
 
-        in_path = line_path
-        for pad in range(25):
-            # indirect_path = build_grid_path(line_path, indirect_grid)
-            inter_path = build_grid_path(in_path, indirect_grid)
-            print(ln, pad, len(in_path), "->", len(inter_path))
-            in_path = inter_path
+values = [int(line[:-1]) for line in lines]
 
-        complexity = len(inter_path) * int(line.strip()[:-1])
-        print(
-            len(inter_path),
-            int(line.strip()[:-1]),
-            len(inter_path) * int(line.strip()[:-1]),
-        )
-        complexities += complexity
+for pad in range(25):
+    for ln, line in enumerate(lines):
+        input = str(line)
+        output = build_grid_path(input, direct_grid if pad == 0 else indirect_grid)
+        lines[ln] = output
 
-print("Part 1:", complexities)
+        print(pad, ln, len(input), "->", len(output))
+
+    # print(get_neighbours.cache_info())
+    # print(dijkstra.cache_info())
+    # print(refine_path.cache_info())
+    # print(build_grid_step.cache_info())
+
+# print(values, [len(line) for line in lines], lines)
+complexities = sum([values[i] * len(lines[i]) for i in range(len(lines))])
+print("Total complexity:", complexities)
 
 # 239800 too low
 # 242484 ?!
