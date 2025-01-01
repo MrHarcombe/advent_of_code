@@ -1,4 +1,4 @@
-package main
+package day1
 
 import (
 	"bufio"
@@ -30,8 +30,8 @@ func count[T any](slice []T, f func(T) bool) int {
 	return count
 }
 
-func main() {
-	fileName := os.Args[1]
+func Solution(fileName string) {
+	fmt.Println("2024 Day 1")
 
 	if len(fileName) == 0 || fileName == "test" {
 		for _, value := range test {
@@ -56,13 +56,10 @@ func main() {
 			left = append(left, v1)
 			right = append(right, v2)
 		}
-
-		fmt.Println(len(left), len(right))
 	}
 
-	sort.Slice(left, func(i, j int) bool { return left[i] < left[j] })
-	sort.Slice(right, func(i, j int) bool { return right[i] < right[j] })
-	// fmt.Println(left, right)
+	sort.Ints(left)
+	sort.Ints(right)
 
 	var distance int
 	for i := range left {
