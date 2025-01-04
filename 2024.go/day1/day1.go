@@ -1,9 +1,8 @@
 package day1
 
 import (
-	"bufio"
+	"advent_of_code/2024.go/util"
 	"fmt"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,29 +32,13 @@ func count[T any](slice []T, f func(T) bool) int {
 func Solution(fileName string) {
 	fmt.Println("2024 Day 1")
 
-	if len(fileName) == 0 || fileName == "test" {
-		for _, value := range test {
-			values := strings.Split(value, "   ")
-			v1, _ := strconv.Atoi(values[0])
-			v2, _ := strconv.Atoi(values[1])
-			left = append(left, v1)
-			right = append(right, v2)
-		}
-	} else {
-		handle, error := os.Open(fileName)
-		if error != nil {
-			fmt.Println(error)
-		}
-		scanner := bufio.NewScanner(handle)
-		scanner.Split(bufio.ScanLines)
-
-		for scanner.Scan() {
-			values := strings.Split(scanner.Text(), "   ")
-			v1, _ := strconv.Atoi(values[0])
-			v2, _ := strconv.Atoi(values[1])
-			left = append(left, v1)
-			right = append(right, v2)
-		}
+	var input = util.LoadInput(fileName, test)
+	for _, value := range input {
+		values := strings.Split(value, "   ")
+		v1, _ := strconv.Atoi(values[0])
+		v2, _ := strconv.Atoi(values[1])
+		left = append(left, v1)
+		right = append(right, v2)
 	}
 
 	sort.Ints(left)

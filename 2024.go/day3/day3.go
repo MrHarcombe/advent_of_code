@@ -1,9 +1,8 @@
 package day3
 
 import (
-	"bufio"
+	"advent_of_code/2024.go/util"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,28 +16,14 @@ var memory string
 func Solution(fileName string) {
 	fmt.Println("2024 Day 3")
 
-	if len(fileName) == 0 || fileName == "test" {
-		var b strings.Builder
-		for _, value := range test {
-			fmt.Fprintf(&b, "%s", value)
-		}
-		memory = b.String()
-	} else {
-		handle, error := os.Open(fileName)
-		if error != nil {
-			fmt.Println(error)
-		}
-		scanner := bufio.NewScanner(handle)
-		scanner.Split(bufio.ScanLines)
-
-		var b strings.Builder
-		for scanner.Scan() {
-			fmt.Fprintf(&b, "%s", scanner.Text())
-		}
-		memory = b.String()
+	var input = util.LoadInput(fileName, test)
+	var b strings.Builder
+	for _, value := range input {
+		fmt.Fprintf(&b, "%s", value)
 	}
-
+	memory = b.String()
 	// fmt.Println(memory)
+
 	var results1 int
 
 	part1, _ := regexp.Compile(`mul\(([0-9]+),([0-9]+)\)`)

@@ -1,10 +1,9 @@
 package day4
 
 import (
-	"bufio"
+	"advent_of_code/2024.go/util"
 	"cmp"
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -103,22 +102,9 @@ func countMSOutFrom(grid []string, row, col int) bool {
 func Solution(fileName string) {
 	fmt.Println("2024 Day 4")
 
-	if len(fileName) == 0 || fileName == "test" {
-		grid = append(grid, test...)
-	} else {
-		handle, error := os.Open(fileName)
-		if error != nil {
-			fmt.Println(error)
-		}
-		scanner := bufio.NewScanner(handle)
-		scanner.Split(bufio.ScanLines)
-
-		for scanner.Scan() {
-			grid = append(grid, scanner.Text())
-		}
-	}
-
+	grid = util.LoadInput(fileName, test)
 	// fmt.Println(grid)
+
 	var foundXmas1, foundXmas2 int
 
 	for r, row := range grid {

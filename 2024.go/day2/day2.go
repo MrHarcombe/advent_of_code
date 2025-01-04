@@ -1,10 +1,9 @@
 package day2
 
 import (
-	"bufio"
+	"advent_of_code/2024.go/util"
 	"cmp"
 	"fmt"
-	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -41,33 +40,15 @@ func checkReportIsSafe(report []int) bool {
 func Solution(fileName string) {
 	fmt.Println("2024 Day 2")
 
-	if len(fileName) == 0 || fileName == "test" {
-		for _, value := range test {
-			values := strings.Split(value, " ")
-			var readings []int
-			for _, value := range values {
-				v, _ := strconv.Atoi(value)
-				readings = append(readings, v)
-			}
-			reports = append(reports, readings)
+	var input = util.LoadInput(fileName, test)
+	for _, value := range input {
+		values := strings.Split(value, " ")
+		var readings []int
+		for _, value := range values {
+			v, _ := strconv.Atoi(value)
+			readings = append(readings, v)
 		}
-	} else {
-		handle, error := os.Open(fileName)
-		if error != nil {
-			fmt.Println(error)
-		}
-		scanner := bufio.NewScanner(handle)
-		scanner.Split(bufio.ScanLines)
-
-		for scanner.Scan() {
-			values := strings.Split(scanner.Text(), " ")
-			var readings []int
-			for _, value := range values {
-				v, _ := strconv.Atoi(value)
-				readings = append(readings, v)
-			}
-			reports = append(reports, readings)
-		}
+		reports = append(reports, readings)
 	}
 
 	var safe_1 int
