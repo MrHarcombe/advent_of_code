@@ -1,7 +1,6 @@
 package day2
 
 import (
-	"advent_of_code/2024.go/util"
 	"cmp"
 	"fmt"
 	"slices"
@@ -9,13 +8,12 @@ import (
 	"strings"
 )
 
-var test = []string{
-	"7 6 4 2 1",
-	"1 2 7 8 9",
-	"9 7 6 2 1",
-	"1 3 2 4 5",
-	"8 6 4 4 1",
-	"1 3 6 7 9"}
+var TestData = `7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9`
 
 var reports [][]int
 
@@ -37,11 +35,10 @@ func checkReportIsSafe(report []int) bool {
 	return true
 }
 
-func Solution(fileName string) {
+func Solution(rawData []string) {
 	fmt.Println("2024 Day 2")
 
-	var input = util.LoadInput(fileName, test)
-	for _, value := range input {
+	for _, value := range rawData {
 		values := strings.Split(value, " ")
 		var readings []int
 		for _, value := range values {

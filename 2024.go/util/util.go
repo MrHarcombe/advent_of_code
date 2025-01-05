@@ -7,24 +7,30 @@ import (
 	"strings"
 )
 
-func LoadInput(fileName string, test_data []string) []string {
+type GetRawData func(file string) []string
+
+func LoadInput(file string) []string {
 	var input_data []string
 
-	if len(fileName) == 0 || fileName == "test" {
-		for _, line := range test_data {
-			input_data = append(input_data, strings.TrimSpace(line))
-		}
-	} else {
-		handle, error := os.Open(fileName)
-		if error != nil {
-			fmt.Println(error)
-		}
-		scanner := bufio.NewScanner(handle)
-		scanner.Split(bufio.ScanLines)
+	handle, error := os.Open(file)
+	if error != nil {
+		fmt.Println(error)
+	}
+	scanner := bufio.NewScanner(handle)
+	scanner.Split(bufio.ScanLines)
 
-		for scanner.Scan() {
-			input_data = append(input_data, scanner.Text())
-		}
+	for scanner.Scan() {
+		input_data = append(input_data, scanner.Text())
+	}
+
+	return input_data
+}
+
+func LoadTestInput(test_data string) []string {
+	var input_data []string
+
+	for _, line := range strings.Split(test_data, "\n") {
+		input_data = append(input_data, strings.TrimSpace(line))
 	}
 
 	return input_data

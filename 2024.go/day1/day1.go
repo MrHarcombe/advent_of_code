@@ -1,20 +1,18 @@
 package day1
 
 import (
-	"advent_of_code/2024.go/util"
 	"fmt"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-var test = []string{
-	"3   4",
-	"4   3",
-	"2   5",
-	"1   3",
-	"3   9",
-	"3   3"}
+var TestData = `3   4
+4   3
+2   5
+1   3
+3   9
+3   3`
 
 var left []int
 var right []int
@@ -29,11 +27,10 @@ func count[T any](slice []T, f func(T) bool) int {
 	return count
 }
 
-func Solution(fileName string) {
+func Solution(rawData []string) {
 	fmt.Println("2024 Day 1")
 
-	var input = util.LoadInput(fileName, test)
-	for _, value := range input {
+	for _, value := range rawData {
 		values := strings.Split(value, "   ")
 		v1, _ := strconv.Atoi(values[0])
 		v2, _ := strconv.Atoi(values[1])

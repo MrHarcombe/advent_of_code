@@ -1,25 +1,23 @@
 package day4
 
 import (
-	"advent_of_code/2024.go/util"
 	"cmp"
 	"fmt"
 	"strings"
 )
 
-var test = []string{
-	"MMMSXXMASM",
-	"MSAMXMSMSA",
-	"AMXSXMAAMM",
-	"MSAMASMSMX",
-	"XMASAMXAMM",
-	"XXAMMXXAMA",
-	"SMSMSASXSS",
-	"SAXAMASAAA",
-	"MAMMMXMMMM",
-	"MXMXAXMASX"}
+var TestData = `MMMSXXMASM
+MSAMXMSMSA
+AMXSXMAAMM
+MSAMASMSMX
+XMASAMXAMM
+XXAMMXXAMA
+SMSMSASXSS
+SAXAMASAAA
+MAMMMXMMMM
+MXMXAXMASX`
 
-var grid []string
+var rawData []string
 
 func checkGridSlice(grid []string, row, col, rowEnd, dRow, dCol int, comparison string) bool {
 	var b strings.Builder
@@ -99,10 +97,10 @@ func countMSOutFrom(grid []string, row, col int) bool {
 	return cmp.Compare(possible, "MSSM") == 0 || cmp.Compare(possible, "MMSS") == 0 || cmp.Compare(possible, "SMMS") == 0 || cmp.Compare(possible, "SSMM") == 0
 }
 
-func Solution(fileName string) {
+func Solution(rawData []string) {
 	fmt.Println("2024 Day 4")
 
-	grid = util.LoadInput(fileName, test)
+	var grid = rawData
 	// fmt.Println(grid)
 
 	var foundXmas1, foundXmas2 int

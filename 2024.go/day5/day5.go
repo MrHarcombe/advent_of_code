@@ -1,41 +1,40 @@
 package day5
 
 import (
-	"advent_of_code/2024.go/util"
 	"fmt"
 	"slices"
 	"strconv"
 	"strings"
 )
 
-var test = []string{"47|53",
-	"97|13",
-	"97|61",
-	"97|47",
-	"75|29",
-	"61|13",
-	"75|53",
-	"29|13",
-	"97|29",
-	"53|29",
-	"61|53",
-	"97|53",
-	"61|29",
-	"47|13",
-	"75|47",
-	"97|75",
-	"47|61",
-	"75|61",
-	"47|29",
-	"75|13",
-	"53|13",
-	"",
-	"75,47,61,53,29",
-	"97,61,53,29,13",
-	"75,29,13",
-	"75,97,47,61,53",
-	"61,13,29",
-	"97,13,75,29,47"}
+var TestData = `47|53
+97|13
+97|61
+97|47
+75|29
+61|13
+75|53
+29|13
+97|29
+53|29
+61|53
+97|53
+61|29
+47|13
+75|47
+97|75
+47|61
+75|61
+47|29
+75|13
+53|13
+
+75,47,61,53,29
+97,61,53,29,13
+75,29,13
+75,97,47,61,53
+61,13,29
+97,13,75,29,47`
 
 func checkOrderings(page int, subPages []int, orderings map[int][]int) bool {
 	if len(subPages) == 0 {
@@ -74,17 +73,14 @@ func correctOrderings(pages []int, orderings map[int][]int) []int {
 	return correct
 }
 
-func Solution(fileName string) {
+func Solution(rawData []string) {
 	fmt.Println("2024 Day 5")
-
-	var input = util.LoadInput(fileName, test)
-	// fmt.Println(input)
+	// fmt.Println(rawData)
 
 	var orderings = make(map[int][]int)
-
 	var page int
-	for ; len(input[page]) > 0; page++ {
-		values := strings.Split(input[page], "|")
+	for ; len(rawData[page]) > 0; page++ {
+		values := strings.Split(rawData[page], "|")
 		v1, _ := strconv.Atoi(values[0])
 		v2, _ := strconv.Atoi(values[1])
 		orderings[v1] = append(orderings[v1], v2)
@@ -92,8 +88,8 @@ func Solution(fileName string) {
 	// fmt.Println(orderings)
 
 	var updates [][]int
-	for page++; page < len(input) && len(input[page]) > 0; page++ {
-		values := strings.Split(input[page], ",")
+	for page++; page < len(rawData) && len(rawData[page]) > 0; page++ {
+		values := strings.Split(rawData[page], ",")
 		var pages []int
 		for _, value := range values {
 			v, _ := strconv.Atoi(value)

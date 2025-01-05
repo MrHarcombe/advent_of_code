@@ -1,24 +1,21 @@
 package day3
 
 import (
-	"advent_of_code/2024.go/util"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-var test = []string{
-	"xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"}
+var TestData = `xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`
 
 var memory string
 
-func Solution(fileName string) {
+func Solution(rawData []string) {
 	fmt.Println("2024 Day 3")
 
-	var input = util.LoadInput(fileName, test)
 	var b strings.Builder
-	for _, value := range input {
+	for _, value := range rawData {
 		fmt.Fprintf(&b, "%s", value)
 	}
 	memory = b.String()
