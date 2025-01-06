@@ -20,7 +20,7 @@ func count[T any](slice []T, f func(T) bool) int {
 	return count
 }
 
-func Solution(rawData []string) {
+func Solution(rawData []string) (int, int) {
 	fmt.Println("2024 Day 1")
 
 	for _, value := range rawData {
@@ -43,8 +43,6 @@ func Solution(rawData []string) {
 		}
 	}
 
-	fmt.Println("Part 1:", distance)
-
 	var similarity int
 	for _, value := range left {
 		similarity += value * count(right, func(m int) bool {
@@ -52,5 +50,5 @@ func Solution(rawData []string) {
 		})
 	}
 
-	fmt.Println("Part 2:", similarity)
+	return distance, similarity
 }

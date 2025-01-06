@@ -9,7 +9,7 @@ import (
 
 var memory string
 
-func Solution(rawData []string) {
+func Solution(rawData []string) (int, int) {
 	fmt.Println("2024 Day 3")
 
 	var b strings.Builder
@@ -47,6 +47,5 @@ func Solution(rawData []string) {
 		}
 	}
 
-	fmt.Println("Part 1:", results1)
-	fmt.Println("Part 2:", results2)
+	return results1, results2
 }

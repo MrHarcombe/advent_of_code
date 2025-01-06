@@ -19,14 +19,19 @@ func makeLoader(grd util.GetRawData) *DataLoader {
 	return &DataLoader{loadInput: grd}
 }
 
+func displayAnswers(part1, part2 int) {
+	fmt.Println("Part 1:", part1)
+	fmt.Println("Part 2:", part2)
+}
+
 func main() {
 	var loader = makeLoader(util.LoadInput)
 
 	begin := time.Now().UnixMilli()
-	day1.Solution(loader.loadInput("../2024/input1.txt"))
-	day2.Solution(loader.loadInput("../2024/input2.txt"))
-	day3.Solution(loader.loadInput("../2024/input3.txt"))
-	day4.Solution(loader.loadInput("../2024/input4.txt"))
-	day5.Solution(loader.loadInput("../2024/input5.txt"))
+	displayAnswers(day1.Solution(loader.loadInput("../2024/input1.txt")))
+	displayAnswers(day2.Solution(loader.loadInput("../2024/input2.txt")))
+	displayAnswers(day3.Solution(loader.loadInput("../2024/input3.txt")))
+	displayAnswers(day4.Solution(loader.loadInput("../2024/input4.txt")))
+	displayAnswers(day5.Solution(loader.loadInput("../2024/input5.txt")))
 	fmt.Printf("Elapsed: %dms\n", time.Now().UnixMilli()-begin)
 }

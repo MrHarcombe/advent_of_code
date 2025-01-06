@@ -28,7 +28,7 @@ func checkReportIsSafe(report []int) bool {
 	return true
 }
 
-func Solution(rawData []string) {
+func Solution(rawData []string) (int, int) {
 	fmt.Println("2024 Day 2")
 
 	for _, value := range rawData {
@@ -41,24 +41,23 @@ func Solution(rawData []string) {
 		reports = append(reports, readings)
 	}
 
-	var safe_1 int
-	var safe_2 int
+	var safe1 int
+	var safe2 int
 
 	for _, report := range reports {
 		if checkReportIsSafe(report) {
-			safe_1++
-			safe_2++
+			safe1++
+			safe2++
 		} else {
 			for i := range report {
 				sub_report := slices.Concat(report[:i], report[i+1:])
 				if checkReportIsSafe(sub_report) {
-					safe_2++
+					safe2++
 					break
 				}
 			}
 		}
 	}
 
-	fmt.Println("Part 1:", safe_1)
-	fmt.Println("Part 2:", safe_2)
+	return safe1, safe2
 }

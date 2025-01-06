@@ -86,7 +86,7 @@ func countMSOutFrom(grid []string, row, col int) bool {
 	return cmp.Compare(possible, "MSSM") == 0 || cmp.Compare(possible, "MMSS") == 0 || cmp.Compare(possible, "SMMS") == 0 || cmp.Compare(possible, "SSMM") == 0
 }
 
-func Solution(rawData []string) {
+func Solution(rawData []string) (int, int) {
 	fmt.Println("2024 Day 4")
 
 	var grid = rawData
@@ -107,6 +107,5 @@ func Solution(rawData []string) {
 		}
 	}
 
-	fmt.Println("Part 1:", foundXmas1)
-	fmt.Println("Part 2:", foundXmas2)
+	return foundXmas1, foundXmas2
 }

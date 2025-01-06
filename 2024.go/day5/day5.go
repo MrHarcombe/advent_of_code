@@ -44,7 +44,7 @@ func correctOrderings(pages []int, orderings map[int][]int) []int {
 	return correct
 }
 
-func Solution(rawData []string) {
+func Solution(rawData []string) (int, int) {
 	fmt.Println("2024 Day 5")
 	// fmt.Println(rawData)
 
@@ -80,6 +80,5 @@ func Solution(rawData []string) {
 		}
 	}
 
-	fmt.Println("Part 1:", validMedians)
-	fmt.Println("Part 2:", invalidMedians)
+	return validMedians, invalidMedians
 }
