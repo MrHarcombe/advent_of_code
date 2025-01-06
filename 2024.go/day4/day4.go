@@ -6,17 +6,6 @@ import (
 	"strings"
 )
 
-var TestData = `MMMSXXMASM
-MSAMXMSMSA
-AMXSXMAAMM
-MSAMASMSMX
-XMASAMXAMM
-XXAMMXXAMA
-SMSMSASXSS
-SAXAMASAAA
-MAMMMXMMMM
-MXMXAXMASX`
-
 var rawData []string
 
 func checkGridSlice(grid []string, row, col, rowEnd, dRow, dCol int, comparison string) bool {
