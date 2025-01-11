@@ -4,11 +4,20 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
-type GetRawData func(file string) []string
+func LoadLocalInput(test_data string) []string {
+	var input_data []string
 
-func LoadInput(file string) []string {
+	for _, line := range strings.Split(test_data, "\n") {
+		input_data = append(input_data, strings.TrimSpace(line))
+	}
+
+	return input_data
+}
+
+func LoadFileInput(file string) []string {
 	var input_data []string
 
 	handle, error := os.Open(file)
@@ -23,4 +32,32 @@ func LoadInput(file string) []string {
 	}
 
 	return input_data
+}
+
+type GetRawData func(file string) []string
+
+type DataLoader struct {
+	LoadInput GetRawData
+}
+
+func MakeLoader(grd GetRawData) *DataLoader {
+	return &DataLoader{LoadInput: grd}
+}
+
+func Enqueue(queue []int, value int) []int {
+	queue = append(queue, value)
+	return queue
+}
+
+func Dequeue(queue []int) ([]int, *int) {
+	var value (*int)
+	if len(queue) > 0 {
+		value = &queue[0]
+		queue = queue[1:]
+	}
+	return queue, value
+}
+
+func IsEmpty(queue []int) bool {
+	return len(queue) == 0
 }
