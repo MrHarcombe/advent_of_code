@@ -113,7 +113,7 @@ func Solution(rawData []string) (int, int) {
 	jobs := make(chan warehouseJob, len(visited))
 	results := make(chan bool, len(visited))
 
-	workerPool(50, jobs, results)
+	workerPool(500, jobs, results)
 
 	for barrel := range visited {
 		jobs <- warehouseJob{barrel: barrel, warehouse: grid, guard: initialGuard}
