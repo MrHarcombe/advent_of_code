@@ -8,6 +8,7 @@ import (
 	"advent_of_code/2024.go/day5"
 	"advent_of_code/2024.go/day6"
 	"advent_of_code/2024.go/day7"
+	"advent_of_code/2024.go/day8"
 	"advent_of_code/2024.go/util"
 	"fmt"
 	"time"
@@ -29,5 +30,6 @@ func main() {
 	displayAnswers(day5.Solution(loader.LoadInput("../2024/input5.txt")))
 	displayAnswers(day6.Solution(loader.LoadInput("../2024/input6.txt")))
 	displayAnswers(day7.Solution(loader.LoadInput("../2024/input7.txt")))
+	displayAnswers(day8.Solution(loader.LoadInput("../2024/input8.txt")))
 	fmt.Printf("Elapsed: %dms\n", time.Now().UnixMilli()-begin)
 }

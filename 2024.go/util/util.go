@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+func Abs(value int) int {
+	if value < 0 {
+		return -value
+	} else {
+		return value
+	}
+}
+
 func LoadLocalInput(test_data string) []string {
 	var input_data []string
 
