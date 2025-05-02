@@ -41,7 +41,7 @@ with open("input16.txt") as data:
                 if not any([value in rng for rng in categories.values()]):
                     scanning_error_rate += value
                     valid = False
-                    
+
             if valid:
                 valid_tickets.append(ticket)
 
@@ -50,7 +50,7 @@ with open("input16.txt") as data:
             ranges = set()
             for rng in values.split(" or "):
                 bounds = list(map(int, rng.split("-")))
-                ranges = ranges.union(range(bounds[0], bounds[1]+1))
+                ranges = ranges.union(range(bounds[0], bounds[1] + 1))
             categories[category.replace(" ", "_")] = ranges
 
         line = data.readline()
@@ -58,10 +58,10 @@ with open("input16.txt") as data:
 # print(categories)
 print("Part 1:", scanning_error_rate)
 
-possibles = {k : [] for k in categories}
+possibles = {k: [] for k in categories}
 for i in range(len(your_ticket)):
     i_values = [your_ticket[i]] + [ticket[i] for ticket in valid_tickets]
-    for k,v in categories.items():
+    for k, v in categories.items():
         if all(tv in v for tv in i_values):
             possibles[k].append(i)
 
@@ -77,8 +77,8 @@ while len(some_known) > 0:
     some_known = [key for key in possibles if len(possibles[key]) == 1]
 
 ticket_fields = 1
-for k,v in all_known.items():
+for k, v in all_known.items():
     if k.startswith("departure"):
         ticket_fields *= your_ticket[v]
-        
+
 print("Part 2:", ticket_fields)

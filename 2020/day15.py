@@ -12,12 +12,12 @@ with StringIO(actual) as values:
         for pos, number in enumerate(map(int, line.strip().split(","))):
             numbers[pos] = number
 
-for n in range(pos+1, 2021):
-    if numbers[n-1] not in numbers[:n-1]:
+for n in range(pos + 1, 2021):
+    if numbers[n - 1] not in numbers[:n - 1]:
         numbers[n] = 0
 
     else:
-        numbers[n] = indexOf(reversed(numbers[:n-1]), numbers[n-1]) + 1
+        numbers[n] = indexOf(reversed(numbers[:n - 1]), numbers[n - 1]) + 1
 
     # print(n, "->", numbers[n])
 

@@ -142,3 +142,4 @@ launch.json
 *.txt
 *.dot
 *.json
+*.mermaid

@@ -27,24 +27,25 @@ test = """939
 # from https://www.geeksforgeeks.org/introduction-to-chinese-remainder-theorem/
 
 # Returns the smallest number x such that:
-# x % num[0] = rem[0], 
-# x % num[1] = rem[1], 
+# x % num[0] = rem[0],
+# x % num[1] = rem[1],
 # ..................
 # x % num[k-2] = rem[k-1]
 #
 # Assumption: Numbers in num[] are pairwise coprime (gcd for every pair is 1)
 
+
 def slow_find_minimum_x(num, rem):
-    x = 1 # Initialize result
+    x = 1  # Initialize result
     k = len(num)
 
     # As per the Chinese remainder theorem, this loop will always break.
     while True:
-        
+
         # Check if remainder of x % num[j] is rem[j] or not
         # (for all j from 0 to k-1)
         j = 0
-        while(j < k):
+        while (j < k):
             if (x % num[j] != rem[j]):
                 break
             j += 1
@@ -56,10 +57,12 @@ def slow_find_minimum_x(num, rem):
         # Else try next number
         x += 1
 
+
 ###
 #
 # Optimised CRT solution (using an extended Euclidean algorithm)
 # from https://www.geeksforgeeks.org/chinese-remainder-theorem-in-python/
+
 
 def gcd_extended(a, b):
     if a == 0:
@@ -67,6 +70,7 @@ def gcd_extended(a, b):
     gcd, x1, y1 = gcd_extended(b % a, a)
     x, y = y1 - (b // a) * x1, x1
     return gcd, x, y
+
 
 def find_minimum_x(num, rem):
     prod_num = prod(num)
@@ -78,6 +82,7 @@ def find_minimum_x(num, rem):
         result += rem[i] * prod_i * inv_i
 
     return result % prod_num
+
 
 # with StringIO(test) as data:
 with open("input13.txt") as data:
@@ -107,7 +112,7 @@ for inc, bus in enumerate(buses):
         continue
 
     bus_numbers.append(bus)
-    bus_offsets.append(0 if inc == 0 else bus-inc)
+    bus_offsets.append(0 if inc == 0 else bus - inc)
 
 print(bus_numbers, bus_offsets)
 print(find_minimum_x(bus_numbers, bus_offsets))

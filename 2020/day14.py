@@ -52,3 +52,4 @@ with open("input14.txt") as inputs:
             line = inputs.readline().strip()
 
 print(sum(memory.values()))
+
