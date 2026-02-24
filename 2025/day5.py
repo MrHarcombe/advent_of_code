@@ -1,4 +1,5 @@
 from io import StringIO
+from time import time
 
 test = """3-5
 10-14
@@ -50,6 +51,7 @@ def reduce_product_ranges(product_ranges):
 
     return product_ranges
 
+checkpoint = time()
 product_ranges = []
 ingredient_count = 0
 
@@ -70,11 +72,10 @@ with open("input5.txt") as file:
                 break
             
 print("Part 1:", ingredient_count)
+print("Checkpoint:", time() - checkpoint)
 
-reduced_ranges = reduce_product_ranges(list(product_ranges))
-all_ingredients = 0
-for product_range in reduced_ranges:
-    all_ingredients += len(product_range)
+all_ingredients = sum(len(pr) for pr in reduce_product_ranges(list(product_ranges)))
 print("Part 2:", all_ingredients)
+print("Final:", time() - checkpoint)
 
 # 355373167127369 too high

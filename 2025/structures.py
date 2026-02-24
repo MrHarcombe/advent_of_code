@@ -332,6 +332,261 @@ class RedBlackTree(Tree):
                 # end of the (do while)-loop
 """
 
+###
+# The Diet Class (ADT Translation)
+# The Haskell data type is translated into a Python class where Empty is represented by None, and DietNode is the main structure.
+
+class DietNode:
+    """
+    Represents the 'Node' of the 'Diet' ADT.
+    The 'Empty' constructor is implicitly represented by None.
+    """
+    def __init__(self, left, interval, right):
+        self.left = left          # Left child (DietNode)
+        self.interval = interval  # Interval (int,int)
+        self.right = right        # Right child (DietNode)
+
+    def __str__(self):
+        return f"({self.left} {self.interval} {self.right})"
+
+    @property
+    def lower(self):
+        if self.left:
+            return self.left.lower
+        return self.interval[0]
+
+    @property
+    def upper(self):
+        if self.right:
+            return self.right.upper
+        return self.interval[1]
+
+
+    ###
+    # Utility Functions
+    # These functions directly mirror the Haskell implementation, using None to check for Empty and handling the recursive structure.
+    #
+    # The methods are static because they operate on the tree structure itself, often taking a DietNode (or None) as an argument.
+    #
+
+    def __split_min(node):
+        """Splits the DietNode into a tree missing its minimum interval and the interval itself."""
+        if node is None:
+            raise ValueError("Cannot split_min on empty DietNode")
+       
+        if node.left is None:
+            return node.right, node.interval
+        else:
+            node_left, interval_prime = DietNode.__split_min(node.left)
+            return DietNode(node_left, node.interval, node.right), interval_prime
+
+    def __split_max(node):
+        """Splits the Diet into a tree missing its maximum interval and the interval itself."""
+        if node is None:
+            raise ValueError("Cannot split_max on empty diet")
+
+        if node.right is None:
+            return node.left, node.interval
+        else:
+            node_right, interval_prime = DietNode.__split_max(node.right)
+            return DietNode(node.left, node.interval, node_right), interval_prime
+
+    def __join_left(node):
+        """Tries to merge the node's interval with the maximum interval in the left subtree."""
+        if node.left is None:
+            return node
+       
+        left, (lower, upper), right = node.left, node.interval, node.right
+        left_prime, (left_lower, left_upper) = DietNode.__split_max(left)
+
+        if left_lower <= lower <= left_upper + 1:
+            return DietNode(left_prime, (min(left_lower, lower), max(upper, left_upper)), right)
+        else:
+            return node
+
+    def __join_right(node):
+        """Tries to merge the node's interval with the minimum interval in the right subtree."""
+        if node.right is None:
+            return node
+           
+        left, (lower, upper), right = node.left, node.interval, node.right
+        right_prime, (right_lower, right_upper) = DietNode.__split_min(right)
+       
+        if right_lower - 1 <= upper <= right_upper:
+            return DietNode(left, (min(right_lower, lower), max(upper, right_upper)), right_prime)
+        else:
+            return node
+
+    def __merge(node_left, node_right):
+        """Merges two diets. Assumes left's maximum is less than right's minimum."""
+        if node_left is None:
+            return node_right
+        if node_right is None:
+            return node_left
+       
+        left_prime, interval = DietNode.__split_max(node_left)
+        return DietNode(left_prime, interval, node_right)
+
+    def insert(x, node):
+        """Inserts element x into the tree, merging intervals if adjacent."""
+        if node is None:
+            if type(x) is int:
+                return DietNode(None, (x, x), None)
+            elif type(x) is tuple:
+                return DietNode(None, (x[0], x[1]), None)
+            elif type(x) is range:
+                return DietNode(None, (x.start, x.stop-1), None)
+
+        else:
+            left, (lower, upper), right = node.left, node.interval, node.right
+            
+            new_lower = new_upper = 0
+            
+            if type(x) is int:
+                new_lower = new_upper = x
+            elif type(x) is tuple:
+                new_lower, new_upper = x
+            elif type(x) is range:
+                new_lower, new_upper = x.start, x.stop-1
+
+            # new 'range' starts lower than this interval
+            if new_lower < lower:
+                # does the 'range' end within the current interval?
+                if lower <= new_upper <= upper:
+                    return DietNode.__join_left(DietNode(left, (new_lower, upper), right))
+                # or does it end above the current range?
+                elif new_upper > lower:
+                    if right and new_upper + 1 < right.lower:
+                        return DietNode.__join_left(DietNode(left, (new_lower, new_upper), right))
+                    elif right and new_upper + 1 == right.lower:
+                        return DietNode.__join_right(DietNode(left, (new_lower, new_upper), right))
+                    else:
+                        return DietNode.__join_right(DietNode(left, (lower, upper), DietNode.insert((new_lower, new_upper), right)))
+                # otherwise add it into the left node
+                else:
+                    return DietNode.__join_left(DietNode(DietNode.insert((new_lower, new_upper), left), (lower, upper), right))
+       
+            elif new_upper > upper:
+                if lower <= new_lower <= upper:
+                    return DietNode.__join_right(DietNode(left, (lower, new_upper), right))
+                elif new_lower < upper:
+                    if left and new_lower + 1 > left.upper:
+                        return DietNode.__join_right(DietNode(left, (new_lower, new_upper), right))
+                    elif left and left.upper + 1 == new_lower:
+                        return DietNode.__join_left(DietNode(left, (new_lower, new_upper), right))
+                    else:
+                        return DietNode.__join_left(DietNode(DietNode.insert((new_lower, new_upper), left)), (lower, upper), right)
+                else:
+                    return DietNode.__join_right(DietNode(left, (lower, upper), DietNode.insert((new_lower, new_upper), right)))
+       
+            else:
+                return node
+
+    def delete(x, node):
+        """Deletes element x from the diet, potentially splitting an interval."""
+        if node is None:
+            return None
+
+        left, (lower, upper), right = node.left, node.interval, node.right
+
+        if x < lower:
+            return DietNode(DietNode.delete(x, left), (lower, upper), right)
+        elif x > upper:
+            return DietNode(left, (lower, upper), DietNode.delete(x, right))
+
+        # At this point, x must be within the interval [i, j]
+        elif x == lower:
+            if lower == upper:
+                return DietNode.merge(left, right)
+            else:
+                return DietNode(left, (lower+1, upper), right)
+
+        elif x == upper:
+            return DietNode(left, (lower, upper-1), right)
+
+        # Otherwise x is strictly between i and j
+        else:
+            # The interval [i, j] splits into [i, x-1] and [x+1, j].
+            return DietNode(left, (lower, x-1), DietNode(None, (x+1, upper), right))
+
+    def is_member(self, x: int) -> bool:
+        """Checks if element x is a member of the diet."""
+        left, (lower, upper), right = self.left, self.interval, self.right
+       
+        if lower <= x <= upper:
+            return True
+
+        elif x < lower:
+            return self.left is not None and self.left.is_member(x)
+
+        else:
+            return self.right is not None and self.right.is_member(x)
+
+    def fold_diet(self, func, base):
+        """
+        A recursive tree fold over the Diet structure (in-order traversal).
+        func: function to combine (left_result, interval, right_result) -> new_result
+        base: accumulator/base value (for the Empty case)
+        """
+        l_result = self.left.fold_diet(func, base) if self.left else base
+        r_result = self.right.fold_diet(func, base) if self.right else base
+        return func(l_result, self.interval, r_result)
+
+
+class DiscreteIntervalEncodingTree:
+    ###
+    # Constructor
+    #
+
+    def __init__(self, elements=[]):
+        """
+        Constructs a Diet from a list of elements.
+        """
+        self.tree = None
+        for x in elements:
+            self.insert(x)
+
+    ###
+    # Main Functions (insert, delete)
+    #
+
+    def insert(self, x):
+        """Inserts element x into the tree, merging intervals if adjacent."""
+        self.tree = DietNode.insert(x, self.tree)
+
+    def delete(self, x):
+        """Deletes element x from the diet, potentially splitting an interval."""
+        if self.tree is not None:
+            self.tree = DietNode.delete(x, self.tree)
+
+    ###
+    # Helper Functions
+    #
+
+    def __str__(self):
+        return self.tree.__str__()
+
+    def __contains__(self, x):
+        """Checks if element x is a member of the diet."""
+        if self.tree is None:
+            return False
+
+        return self.tree.is_member(x)
+
+    def __len__(self):
+        """Calculates the total number of elements stored in the diet."""
+        if self.tree is None:
+            return 0
+
+        return self.tree.fold_diet(lambda x, i, y: x + (lambda interval: interval[1] - interval[0]+1)(i) + y, 0)
+
+    def __iter__(self):
+        """Converts the diet into a sorted list of all its elements."""
+        if self.tree is None:
+            yield from []
+        
+        yield from self.tree.fold_diet(lambda xs, i, ys: xs + (lambda interval: list(range(interval[0], interval[1]+1)))(i) + ys, [])
+
 
 class ListGraph:
 
@@ -718,6 +973,33 @@ if __name__ == "__main__":
         t.pre_traverse(lambda n: print(n.value, end=","))
         print()
         print("...done")
+
+    def test_diet_tree():
+        # Example usage:
+        l = [6, 9, 2, 13, 8, 14, 10, 7, 5]
+        d = DiscreteIntervalEncodingTree(l)
+
+        print("--- Diet Example ---")
+        print(f"List 'l': {l}")
+        print(f"Diet 'd': {d}")
+        # Expected Haskell output: (( [2,2]  [5,10] ) [13,14] )
+        # Note: The Python output for the object will use the dataclass __repr__,
+        # but the structure is the same.
+        # print(d) # This will print the internal Python structure
+
+        print(f"len(d): {len(d)}")
+        print(f"list(d): {list(d)}")
+        print(f"Contains 4? {4 in d}")   # False
+        print(f"Contains 6? {6 in d}")   # True
+        print(f"Contains 11? {11 in d}") # False
+
+        print("--- After Deleting 8 ---")
+        d.delete(8)
+        print(f"Diet 'd': {d}")
+        print(f"len(d): {len(d)}")
+        print(f"list(d): {list(d)}")
+        print(f"Contains 6? {6 in d}")   # True
+        print(f"Contains 8? {8 in d}")   # False
 
     def test_list_graph():
         print("Testing graph (adjacency list)...")
