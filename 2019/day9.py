@@ -5,7 +5,7 @@ class intcode:
     self.name = name
     self.index = 0
     self.inputs = inputs
-    self.output = 0
+    self.output = []
     self.relative = 0
 
     with open(intfile) as f:
@@ -34,8 +34,13 @@ class intcode:
   def has_finished(self):
     return self.command == 99
 
+  def count_output(self):
+    return len(self.output)
+
   def get_output(self):
-    return self.output
+    value = list(self.output)
+    self.output.clear()
+    return value
 
   def get_input(self):
     return self.inputs.pop(0)
@@ -130,7 +135,7 @@ class intcode:
         # output
         operand = self.get_value(self.index+1)
 
-        self.output = self.get_value_by_mode(operand)
+        self.output.append(self.get_value_by_mode(operand))
 
         # print("{}: {} -> output {}".format(self.name, operand, self.output))
 
@@ -227,7 +232,8 @@ class intcode:
       self.execute_next()
     return self.get_output()
 
-test = intcode("p1", "input9.txt", [1])
-print(f"{test.get_name()}[1]", "->", test.run_to_completion())
-test = intcode("p2", "input9.txt", [2])
-print(f"{test.get_name()}[2]", "->", test.run_to_completion())
+if __name__ == "__main__":
+    test = intcode("p1", "input9.txt", [1])
+    print(f"{test.get_name()}[1]", "->", test.run_to_completion())
+    test = intcode("p2", "input9.txt", [2])
+    print(f"{test.get_name()}[2]", "->", test.run_to_completion())
